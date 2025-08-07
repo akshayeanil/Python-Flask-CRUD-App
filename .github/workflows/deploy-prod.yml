@@ -1,0 +1,25 @@
+name: CD - Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: SSH and Run Ansible Playbook (Production)
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.ANSIBLE_CONTROL_NODE_IP }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.ANSIBLE_PRIVATE_KEY }}
+        script: |
+          cd /home/${{ secrets.USER }}/your-project-folder
+          git pull origin main
+          ansible-playbook production-deploy.yml -i inventory
