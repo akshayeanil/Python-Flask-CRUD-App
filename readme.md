@@ -6,7 +6,7 @@ This repository is based on simple code for Python web application CRUD app usin
 CRUD means Create, Read, Update and Delete operations. 
 
 This app will let you add new student record, read and show student records, update student record and delete student record. Python-Flask web application framework or module is being used to handle the requests and responses from users.
-For better understanding of code and working, read the comments present in the file and you will get to learn things easily.
+For better understanding of code and working, read the comments present in the file and you will get to learn things easillyy.
 
 ## Tech Stack used in the project
 
@@ -27,5 +27,6 @@ https://localhost:5000/
 pip install Flask
 
 ## Preview
+
 
 ![screenshot](preview.png)
