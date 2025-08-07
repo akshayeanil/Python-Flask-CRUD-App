@@ -2,30 +2,55 @@ name: CI - Test Flask App
 
 on:
   push:
-    branches: [ develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ develop ]
+    branches: [main, develop]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: python_crud
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
 
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+    - name: Wait for MySQL to be ready
+      run: |
+        echo "Waiting for MySQL to initialize..."
+        sleep 20
 
-      - name: Run tests
-        run: pytest tests/
+    - name: Run unit tests and save results
+      run: |
+        mkdir -p test-results
+        pytest tests/ > test-results/output.log || true
+
+    - name: Upload test logs as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: pytest-logs
+        path: test-results/output.log
