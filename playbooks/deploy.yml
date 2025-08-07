@@ -1,0 +1,51 @@
+---
+- name: Deploy Flask App to EC2
+  hosts: all
+  become: true
+
+  vars:
+    app_repo: "https://github.com/akshayeanil/Python-Flask-CRUD-App.git" 
+    app_path: "/opt/flask_app"
+    venv_path: "/opt/flask_app/venv"
+
+  tasks:
+
+    - name: Install system dependencies
+      apt:
+        name:
+          - git
+          - python3
+          - python3-pip
+          - python3-venv
+          - build-essential
+          - libmysqlclient-dev
+          - pkg-config
+        state: present
+        update_cache: yes
+
+    - name: Clone Flask App repo
+      git:
+        repo: "{{ app_repo }}"
+        dest: "{{ app_path }}"
+        force: yes
+
+    - name: Remove broken virtual environment if exists
+      file:
+        path: "{{ venv_path }}"
+        state: absent
+
+    - name: Create virtual environment
+      command: python3 -m venv "{{ venv_path }}"
+      args:
+        creates: "{{ venv_path }}/bin/activate"
+
+    - name: Ensure pip is present inside virtualenv
+      command: "{{ venv_path }}/bin/python -m ensurepip"
+      args:
+        creates: "{{ venv_path }}/bin/pip"
+
+    - name: Upgrade pip inside virtualenv
+      command: "{{ venv_path }}/bin/pip install --upgrade pip"
+
+    - name: Install Python requirements (inside venv)
+      command: "{{ venv_path }}/bin/pip install -r {{ app_path }}/requirements.txt"
