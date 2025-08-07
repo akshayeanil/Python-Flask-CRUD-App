@@ -1,15 +1,15 @@
-name: CD - Deploy to Staging
+name: CD - Deploy to Production
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Deploy to Staging via Ansible
+    - name: Deploy to Production via Ansible
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.ANSIBLE_CONTROL_NODE_IP }}
@@ -17,4 +17,4 @@ jobs:
         key: ${{ secrets.ANSIBLE_PRIVATE_KEY }}
         script: |
           cd ~/flask-deploy
-          ansible-playbook -i inventory.ini playbooks/deploy.yml --limit staging
+          ansible-playbook -i inventory.ini playbooks/deploy.yml --limit production
