@@ -13,13 +13,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: SSH and Run Ansible Playbook (Staging)
+    - name: SSH into Ansible Control Node and Deploy to Staging
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.ANSIBLE_CONTROL_NODE_IP }}
         username: ${{ secrets.USER }}
         key: ${{ secrets.ANSIBLE_PRIVATE_KEY }}
         script: |
-          cd /home/${{ secrets.USER }}/your-project-folder
+          echo "[INFO] Pulling latest staging branch..."
+          cd ~/flask-deploy
           git pull origin staging
-          ansible-playbook staging-deploy.yml -i inventory
+
+          echo "[INFO] Running staging playbook..."
+          ansible-playbook playbooks/staging-deploy.yml -i inventory.ini
