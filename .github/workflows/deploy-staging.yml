@@ -1,0 +1,25 @@
+name: CD - Deploy to Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: SSH and Run Ansible Playbook (Staging)
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.ANSIBLE_CONTROL_NODE_IP }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.ANSIBLE_PRIVATE_KEY }}
+        script: |
+          cd /home/${{ secrets.USER }}/your-project-folder
+          git pull origin staging
+          ansible-playbook staging-deploy.yml -i inventory
